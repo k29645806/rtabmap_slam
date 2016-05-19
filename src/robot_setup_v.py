@@ -47,7 +47,7 @@ class Robot(object):
                          "base_link")
 
     def start(self):
-        rate = rospy.Rate(20.0)
+        rate = rospy.Rate(50.0)
         rospy.loginfo("Start publishing required tf")
         while not rospy.is_shutdown():
             self.broadcastTF()

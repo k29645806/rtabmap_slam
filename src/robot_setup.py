@@ -10,8 +10,7 @@ from nav_msgs.msg import Odometry
 
 '''
 1. Publish odometry information
-2. Publish sensor information (Laser, sonar)
-3. Publish robot transform configuration
+2. Publish robot transform configuration
 '''
 
 class Robot(object):
@@ -20,29 +19,21 @@ class Robot(object):
         self.tfBroadcaster = tf.TransformBroadcaster()
         rospy.Subscriber("/kobuki/odom", Odometry, self.subOdom)
         self.odomPublisher = rospy.Publisher('/odom',Odometry, queue_size=10)
-        self.position, self.orientation = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 0.0)
+        self.position, self.orientation = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 1.0)
+        self.linearX, self.angularZ = 0.0, 0.0
 #-------------------------------------------------------------------------------
     def subOdom(self, odom):
         self.position = (odom.pose.pose.position.x, odom.pose.pose.position.y, 0.0)
         self.orientation = (odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation.w)
+        self.linearX = odom.twist.twist.linear.x
+        self.angularZ = odom.twist.twist.angular.z
 #-------------------------------------------------------------------------------
     def broadcastTF(self,data=None):
-        # translation, orientation, time, child, parent
-        #self.tfBroadcaster.sendTransform(self.position,
-        #                 self.orientation,
-        #                 rospy.Time.now(),
-        #                 "odom",
-        #                 "/map")
         self.tfBroadcaster.sendTransform(self.position,
                          self.orientation,
                          rospy.Time.now(),
-                         "base_footprint",
-                         "odom")
-        self.tfBroadcaster.sendTransform((0, 0, 0),
-                         quaternion_from_euler(0, 0, 0),
-                         rospy.Time.now(),
                          "base_link",
-                         "base_footprint")
+                         "odom")
         self.tfBroadcaster.sendTransform((0.0, 0.0, 0.2),
                          quaternion_from_euler(0, 0, 0),
                          rospy.Time.now(),
@@ -51,7 +42,7 @@ class Robot(object):
         self.tfBroadcaster.sendTransform((0, 0, 0.2),
                          quaternion_from_euler(0, 0, 0),
                          rospy.Time.now(),
-                         "base_laser_link",
+                         "base_laser",
                          "base_link")
 
     def publishOdometry(self,data=None):
@@ -59,17 +50,16 @@ class Robot(object):
         odom.header.seq = 0
         odom.header.stamp = rospy.Time.now()
         odom.header.frame_id = "odom"
-        odom.pose.pose.position.x = 0.0
-        odom.pose.pose.position.y = 0.0
+        odom.pose.pose.position.x = self.position[0]
+        odom.pose.pose.position.y = self.position[1]
         odom.pose.pose.position.z = 0.0
-        q = quaternion_from_euler(0.0 ,0.0 ,0.0)
-        odom.pose.pose.orientation = Quaternion(q[0], q[1], q[2], q[3])
-        odom.twist.twist.linear.x = 0.0
-        odom.twist.twist.angular.z = 0.0
+        odom.pose.pose.orientation = Quaternion(self.orientation[0], self.orientation[1], self.orientation[2], self.orientation[3])
+        odom.twist.twist.linear.x = self.linearX
+        odom.twist.twist.angular.z = self.angularZ
         self.odomPublisher.publish(odom)
 
     def start(self):
-        rate = rospy.Rate(20.0)
+        rate = rospy.Rate(50.0)
         rospy.loginfo("Start publishing required tf")
         while not rospy.is_shutdown():
             self.broadcastTF()

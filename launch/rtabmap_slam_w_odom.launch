@@ -6,17 +6,17 @@
            $ roslaunch openni2_launch openni2.launch depth_registration:=true -->
 
   <!-- Choose visualization -->
-  <arg name="rviz"                    default="false" />
+  <arg name="rviz"                    default="true" />
   <arg name="rtabmapviz"              default="false" />
 
   <!-- Corresponding config files -->
   <arg name="rtabmapviz_cfg"          default="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" />
-  <arg name="rviz_cfg"                default="-d $(find rtabmap_ros)/launch/config/rgbd.rviz" />
+  <arg name="rviz_cfg"                default="-d $(find rtabmap_slam)/launch/config/rviz.rviz" />
 
   <arg name="frame_id"                default="base_link"/>   <!-- Fixed frame id, you may set "base_link" or "base_footprint" if they are published -->
   <arg name="time_threshold"          default="0"/>             <!-- (ms) If not 0 ms, memory management is used to keep processing time on this fixed limit. -->
   <arg name="optimize_from_last_node" default="false"/>         <!-- Optimize the map from the last node. Should be true on multi-session mapping and when time threshold is set -->
-  <arg name="database_path"           default="$(find rtabmap_slam)/include/livingroom.db"/>
+  <arg name="database_path"           default="$(find rtabmap_slam)/include/office.db"/>
   <arg name="rtabmap_args"            default=""/>              <!-- delete_db_on_start, udebug -->
   <arg name="launch_prefix"           default=""/>              <!-- for debugging purpose, it fills launch-prefix tag of the nodes -->
 
