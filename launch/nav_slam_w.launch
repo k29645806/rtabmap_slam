@@ -1,0 +1,28 @@
+<launch>
+  <!--Start xtionpro-->
+  <include file="$(find rtabmap_slam)/launch/xtionpro.launch"/>
+
+  <!--Publish required tf-->
+  <node pkg="rtabmap_slam" type="robot_setup.py" name="robot_setup"/>
+
+  <!-- Kobuki start -->
+  <include file="$(find rtabmap_slam)/launch/minimal.launch"/>
+
+  <!-- Point cloud to laser scan -->
+  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
+    <remap from="image"     to="/camera/depth_registered/image_raw"/>
+    <remap from="camera_info" to="/camera/depth_registered/camera_info"/>
+    <remap from="scan" to="/scan"/>
+    <param name="range_max" type="double" value="10"/>
+  </node>
+
+  <!-- fill out abnormal values -->
+  <include file="$(find robot)/launch/laser_filter.launch"/>
+
+  <!--Navigation-->
+  <include file="$(find robot)/launch/move_base.launch" />
+
+  <!-- Visual SLAM (robot side) -->
+  <include file="$(find rtabmap_slam)/launch/rtabmap_slam_w.launch" />
+
+</launch>
