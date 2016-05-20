@@ -1,0 +1,12 @@
+<launch>
+  <!-- Publish static tf -->
+  <node pkg="rtabmap_slam" type="sim_robot_setup.py" name="sim_robot_setup"/>
+
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find rtabmap_slam)/yaml/map.yaml" />
+
+  <include file="$(find rtabmap_slam)/launch/move_base.launch" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rtabmap_slam)/config/sim_nav.rviz"/>
+
+</launch>

@@ -6,7 +6,7 @@
   <node pkg="rtabmap_slam" type="robot_setup_v.py" name="robot_setup_v"/>
 
   <!-- Kobuki start -->
-  <!--include file="$(find rtabmap_slam)/launch/minimal.launch"/-->
+  <include file="$(find rtabmap_slam)/launch/minimal.launch"/>
 
   <!-- Point cloud to laser scan -->
   <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
