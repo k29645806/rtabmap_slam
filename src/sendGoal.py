@@ -14,8 +14,6 @@ class Navigation(object):
 
     label_list = {}
 
-    location = PoseStamped()
-
     Room = PoseStamped()
     Room.pose.position = Point(55,66,0)
     Room.pose.orientation = Quaternion(0,0,0,1)
@@ -40,30 +38,34 @@ class Navigation(object):
         self.pub.publish(goal)
 
     def label_location(self,cmd):
-        location = cmd.split(" ")[1]
-        rospy.loginfo("Prepare to add %s into label_list"%location)
-        rospy.loginfo("Subscribe odom and filled in label_list")
+        location_label = cmd.split(" ")[1]
+        rospy.loginfo("Location label: %s"%location_label)
+        location = self.subTF()
+
         try:
-            self.label_list[location] = self.location
+            self.label_list[location_label] = location
         except:
             rospy.loginfo("Error are you sure tf transform being published? ")
 
     def subTF(self):
+        # Subscribe /map -> /base_link transform
         self.tf_listener.waitForTransform("map", "base_link", rospy.Time(), rospy.Duration(1.0))
         (trans,rot) = self.tf_listener.lookupTransform("map", "base_link", rospy.Time())
-        self.location.pose.position = Point(trans[0], trans[1], trans[2])
-        self.location.pose.orientation = Quaternion(rot[0], rot[1], rot[2], rot[3])
+        rospy.loginfo("Translation:%s  Orientation:%s"%(trans, rot))
+        location = PoseStamped()
+        location.pose.position = Point(trans[0], trans[1], trans[2])
+        location.pose.orientation = Quaternion(rot[0], rot[1], rot[2], rot[3])
+        return location
+
 
     def parser(self,cmd):
         if "label" in cmd:
-            self.subTF()
             self.label_location(cmd)
 
         elif cmd in self.label_list:
-            rospy.loginfo("Publish %s"%cmd)
+            rospy.loginfo("Heading to %s"%cmd)
             self.sendGoal(cmd)
         else:
-            rospy.loginfo("Sorry the location you specified is not on the list")
             rospy.loginfo("The labeled list")
             rospy.loginfo(self.label_list.keys())
 

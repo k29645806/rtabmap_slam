@@ -32,7 +32,7 @@
 ### demo_localization.launch
 主要使用了`rtabmap_slam_v_odom.launch`, `xtionpro.launch`, `robot_setup_v.py` 可以在rviz觀察到`/map->odom`的校正關係(也就是說機器人一開機時的位置odom的原點與map的原點並不一致,藉由視覺的定位提供了校正的關係),直接觀察`/map->/base_link`便可以驗證定位是否正確,若是一開始系統出現warning,可能的原因是目前的景像無法辨認出目前的定位,因此試著移動機器人將可以得到改善,或者使用`rosservice call /rtabmap/reset_odom`重新reset `rgbd_odometry`所提供的odometry
 
-### demo_mapping.launch 
+### demo_mapping.launch
 使用`rtabmap_slam_mapping.launch`將模式改成mapping mode,地圖建立在include下的temp.db,使用kobuki提供的wheel odometry提供mapping,利用遠端遙控的方式,便可以進行mapping並同時localization,temp.db檔案在關閉時將自動儲存與覆蓋,因此若想要保留此場景的資料,必須要手動移動檔案,避免程式改寫地圖內容
 
 ### nav_slam_v.launch
